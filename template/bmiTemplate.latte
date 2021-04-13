@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="favicon.ico">
+    <title>{$title}</title>  
+</head>
+
+<body>
+    {var $weightmin = 10}
+    {var $weightmax = 250}
+
+    {var $heightmax = 250}
+    {var $heightmin = 50}
+
+    {var $agemin = 18}
+    {var $agemax = 100}
+
+    <div class="container">
+        <h1>{$title}</h1>
+        <form method="POST">
+            <div class="form-container">
+                <label for="sweight">Weight:</label>
+                <input type="range" n:attr="value => $weight, min => $weightmin, max => $weightmax" name="sweight" id="sweight">
+                <div class="input-box">
+                    <span>kg</span>
+                    <input type="number" n:attr="min => $weightmin, max => $weightmax" name="nweight" id="nweight">
+                </div>
+            </div>
+        
+            <div class="form-container">
+                <label for="sheight">Height:</label>
+                <input type="range" n:attr="value => $height, min => $heightmin, max => $heightmax" name="sheight" id="sheight">
+                <div class="input-box">
+                    <span>cm</span>
+                    <input type="number" n:attr="min => $heightmin, max => $heightmax" name="nheight" id="nheight">
+                </div>
+            </div>
+
+            <div class="form-container">
+                <label for="sage">Age:</label>
+                <input type="range" n:attr="value => $age, min => $agemin, max => $agemax" name="sage" id="sage">
+                <input type="number"n:attr="min => $agemin, max => $agemax" name="nage" id="nage">
+            </div>
+
+            <button type="submit" name="submit" class="submitbtn">Calculate your BMI</button>
+        </form>
+
+        {if isset($_POST["submit"])}
+            {foreach range(0,6) as $age_group_index}
+                {var $age_group = $age_group_index - 2}
+                {breakIf $age_group_index > ($age-4)/10}
+            {/foreach}
+
+            {var $limits = range(19, 29, 5)}
+            {var $limits[-1] = end($limits) + 10}
+            {var $status = 4}
+            {foreach $limits as $limit}
+                {if $bmi < ($limit + $age_group)}
+                    {var $status = ($iterator->counter - 1)}
+                    {breakIf true}
+                {/if}
+            {/foreach}
+
+            <div class="results">
+                <h2> Your BMI: <span class="bmi">{$bmi}</span></h2>
+                <div class="graph">
+                    <div class="arrow" id="arrow"></div>
+                    <div class="start" style="left: 0">15</div>
+                    <div class="end" style="right: 0">50+</div>
+                    <div class="grad"></div>
+                </div>
+                <div class="status" style="color: #{$colors[$status]}">{$status_arr[$status]}</div>
+            </div>
+        {/if}
+    </div>
+
+    <div class="credits">
+        <span>Background image by </span>
+            <a href="https://libreshot.com/cs/health-fitness-concept/">Martin Vorel</a>
+    </div>
+
+    <script async>
+        var wslider = document.getElementById("sweight");
+        var wnumber = document.getElementById("nweight");
+        wnumber.value = wslider.value;
+        wslider.oninput = () => wnumber.value = wslider.value;
+        wnumber.oninput = () => wslider.value = wnumber.value;
+
+        var hslider = document.getElementById("sheight");
+        var hnumber = document.getElementById("nheight");
+        hnumber.value = hslider.value;
+        hslider.oninput = () => hnumber.value = hslider.value;
+        hnumber.oninput = () => hslider.value = hnumber.value;
+
+        var aslider = document.getElementById("sage");
+        var anumber = document.getElementById("nage");
+        anumber.value = aslider.value;
+        aslider.oninput = () => anumber.value = aslider.value;
+        anumber.oninput = () => aslider.value = anumber.value;
+
+        var arrow = document.getElementById("arrow");
+        var bmi = {$bmi};
+        var min = 15;
+        var max = 50;
+        var calc = (bmi - min) * 100 / (max - min);
+        if(arrow !== null) arrow.style.left = (calc <= 100 ? (calc > 0 ? calc : 0) : 100) + "%";
+    </script>
+
+</body> 
+</html>
